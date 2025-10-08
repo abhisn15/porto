@@ -9,18 +9,16 @@
   margin: 0 auto;
 }
 
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 /* Utility class for Baloo 2 with configurable weight */
@@ -50,7 +48,27 @@
 }
 
 body {
-  background: var(--foreground);
-  color: var(--background);
-  font-family: "Baloo 2", bold;
+  background: transparent;
+  color: var(--foreground);
+  font-family: "Baloo 2", sans-serif;
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  background: var(--background);
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth transitions for all elements */
+* {
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Override for elements that should transition faster */
+.motion-div, .framer-motion {
+  transition: none !important;
 }

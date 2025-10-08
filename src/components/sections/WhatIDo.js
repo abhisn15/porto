@@ -4,19 +4,19 @@ import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
 
 export default function WhatIDo() {
-  const theme = useTheme();
+  const { isDarkMode, colors } = useTheme();
   
   const services = [
     {
       title: "UI/UX DESIGN",
       description: "Merancang UI/UX yang intuitif dan visual memukau untuk pengalaman pengguna yang mulus.",
-      iconColor: theme.pink,
+      iconColor: colors.pink,
       icon: "🎨"
     },
     {
       title: "WEB DESIGN",
       description: "Mengubah desain kreatif jadi website responsif yang ciamik.",
-      iconColor: theme.teal,
+      iconColor: colors.teal,
       icon: "💻"
     },
     {
@@ -56,12 +56,22 @@ export default function WhatIDo() {
         viewport={{ once: true }}
       >
         <motion.div variants={itemVariants} className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">WHAT I CAN DO FOR YOU</h2>
+          <h2 
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: colors.text }}
+          >
+            WHAT I CAN DO FOR YOU
+          </h2>
           <div 
             className="h-0.5 w-24 mx-auto"
-            style={{ backgroundColor: theme.yellow }}
+            style={{ backgroundColor: colors.yellow }}
           ></div>
-          <p className="mt-4 text-gray-600">🤔 Discover my expertise</p>
+          <p 
+            className="mt-4"
+            style={{ color: colors.textSecondary }}
+          >
+            🤔 Discover my expertise
+          </p>
         </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -77,7 +87,8 @@ export default function WhatIDo() {
                 description={service.description} 
                 iconColor={service.iconColor}
                 icon={service.icon}
-                theme={theme}
+                isDarkMode={isDarkMode}
+                colors={colors}
               />
             </motion.div>
           ))}
@@ -87,13 +98,16 @@ export default function WhatIDo() {
   );
 }
 
-function ServiceCard({ title, description, iconColor, icon, theme }) {
+function ServiceCard({ title, description, iconColor, icon, isDarkMode, colors }) {
   return (
     <div 
-      className="bg-white border-2 border-black rounded-xl p-8 h-full transition-all duration-300"
+      className="rounded-xl p-8 h-full transition-all duration-300 border-2"
       style={{ 
-        borderColor: 'black',
-        boxShadow: '8px 8px 0px rgba(0,0,0,0.1)'
+        backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.9)',
+        borderColor: isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+        boxShadow: isDarkMode 
+          ? '8px 8px 0px rgba(255,255,255,0.05)' 
+          : '8px 8px 0px rgba(0,0,0,0.1)'
       }}
     >
       <motion.div 
@@ -109,9 +123,21 @@ function ServiceCard({ title, description, iconColor, icon, theme }) {
         <span className="text-2xl">{icon}</span>
       </motion.div>
       
-      <h3 className="text-xl font-bold mb-3">{title}</h3>
-      <p className="text-gray-600">{description}</p>
-      <p className="mt-4 text-sm">💻 Learn more</p>
+      <h3 
+        className="text-xl font-bold mb-3"
+        style={{ color: colors.text }}
+      >
+        {title}
+      </h3>
+      <p style={{ color: colors.textSecondary }}>
+        {description}
+      </p>
+      <p 
+        className="mt-4 text-sm"
+        style={{ color: colors.textSecondary }}
+      >
+        💻 Learn more
+      </p>
     </div>
   );
 }

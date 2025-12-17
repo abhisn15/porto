@@ -4,19 +4,30 @@ import { createContext, useState, useContext, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
-export default function ThemeProvider({ children }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return false;
 
-  // Load theme preference from localStorage on mount
+  const savedTheme = window.localStorage.getItem('theme');
+  if (savedTheme) return savedTheme === 'dark';
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+};
+
+export default function ThemeProvider({ children }) {
+  const [isDarkMode, setIsDarkMode] = useState(getInitialTheme);
+
+  // Listen for system preference changes only when no stored preference exists.
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(prefersDark);
-    }
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = event => {
+      const savedTheme = window.localStorage.getItem('theme');
+      if (!savedTheme) {
+        setIsDarkMode(event.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   // Save theme preference and update body class when theme changes

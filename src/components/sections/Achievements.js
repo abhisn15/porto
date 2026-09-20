@@ -1,124 +1,56 @@
 'use client';
 import { useTheme } from '@/context/ThemeContext';
-import { gsap } from 'gsap';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
+import { useRevealOnScroll } from '@/hooks/useRevealOnScroll';
+import SectionTitle from '@/components/ui/SectionTitle';
 
 export default function Achievements() {
-  const { isDarkMode, colors } = useTheme();
+  const { colors } = useTheme();
   const containerRef = useRef(null);
-  
+
   const achievements = [
+    // Tanggal dan nama mengikuti CV: lombanya April 2024 (bukan Agustus), aplikasinya
+    // EduSafe (bukan BicaraKita), dan AWS-nya Januari 2024 (bukan Maret).
     {
-      title: "LKS IT Solution BAST JAKARTA",
-      date: "Agustus 2024",
-      description: "Juara 3 untuk pengembangan aplikasi \"BicaraKita\" menggunakan Flutter, Laravel, dan SQL.",
-      award: "🥉"
+      title: 'LKS IT Solution, East Jakarta City Level',
+      date: 'April 2024',
+      description:
+        '3rd place with EduSafe, a Flutter app that lets students discuss their homework with each other, backed by Laravel and an ERD-based database design.',
+      location: 'Jakarta, Indonesia'
     },
     {
-      title: "AWS Indonesian Cloud Computing Club Competition",
-      date: "Maret 2024",
-      description: "Finalis dalam pembuatan website donasi.",
-      award: "🏆"
+      title: 'AWS Sagasitas Cloud Computing Club Competition, DKI Jakarta Province Level',
+      date: 'January 2024',
+      description: 'Grand finalist with Cloubee, a donation site that points people to verified charities.',
+      location: 'Jakarta, Indonesia'
     }
   ];
 
-  useEffect(() => {
-    // Initial animation
-    gsap.fromTo(containerRef.current,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-    );
+  useRevealOnScroll(containerRef);
 
-    // Stagger animation for achievement cards
-    const achievementCards = containerRef.current?.querySelectorAll('.achievement-card');
-    if (achievementCards) {
-      gsap.fromTo(achievementCards,
-        { scale: 0, opacity: 0 },
-        { 
-          scale: 1, 
-          opacity: 1, 
-          duration: 0.6, 
-          stagger: 0.2,
-          ease: "back.out(1.7)"
-        }
-      );
-    }
-  }, []);
-  
   return (
-    <section className="py-20 px-6 md:px-12">
-      <div 
+    <section id="achievements" className="py-16 px-6 md:px-12">
+      <div
         ref={containerRef}
-        className="max-w-7xl mx-auto"
+        className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-8 lg:gap-10 items-start"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Side - Title */}
-          <div>
-            <h2 
-              className="text-4xl md:text-5xl font-bold mb-4 font-hero"
-              style={{ color: colors.text }}
-            >
-              Achievements
-            </h2>
-            <div 
-              className="h-0.5 w-24"
-              style={{ backgroundColor: colors.yellow }}
-            ></div>
-          </div>
+        <SectionTitle baris1="Achieve" baris2="ments" label="Achievements" />
 
-          {/* Right Side - Achievements */}
-          <div className="space-y-6">
-            {achievements.map((achievement, index) => (
-              <div 
-                key={index}
-                className="achievement-card p-6 rounded-lg border relative"
-                style={{
-                  backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                  borderColor: isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'
-                }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.currentTarget, {
-                    scale: 1.02,
-                    borderColor: colors.cyan,
-                    duration: 0.3,
-                    ease: "power2.out"
-                  });
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.currentTarget, {
-                    scale: 1,
-                    borderColor: isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
-                    duration: 0.3,
-                    ease: "power2.out"
-                  });
-                }}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="text-3xl">{achievement.award}</div>
-                  <div className="flex-1">
-                    <h3 
-                      className="text-xl font-bold mb-2"
-                      style={{ color: colors.text }}
-                    >
-                      {achievement.title}
-                    </h3>
-                    <p 
-                      className="text-sm mb-2"
-                      style={{ color: colors.cyan }}
-                    >
-                      {achievement.date}
-                    </p>
-                    <p 
-                      className="text-base"
-                      style={{ color: colors.textSecondary }}
-                    >
-                      {achievement.description}
-                    </p>
-                  </div>
-                </div>
+        <div className="space-y-8">
+          {achievements.map((a) => (
+            <div key={a.title} className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-8">
+              <div className="min-w-0">
+                <h3 className="m-0 text-base font-bold" style={{ color: colors.text }}>{a.title}</h3>
+                <p className="m-0 mt-2 text-base leading-relaxed" style={{ color: colors.textSecondary }}>
+                  {a.description}
+                </p>
               </div>
-            ))}
-          </div>
+              <div className="sm:text-right sm:flex-none">
+                <p className="m-0 text-base font-bold" style={{ color: colors.text }}>{a.date}</p>
+                <p className="m-0 mt-2 text-base" style={{ color: colors.textSecondary }}>{a.location}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

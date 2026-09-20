@@ -1,7 +1,8 @@
 'use client';
 import { useTheme } from '@/context/ThemeContext';
 import { gsap } from 'gsap';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
+import { useRevealOnScroll } from '@/hooks/useRevealOnScroll';
 
 export default function Footer() {
   const { isDarkMode, colors } = useTheme();
@@ -13,13 +14,7 @@ export default function Footer() {
     { name: "Gmail", icon: "✉️", url: "mailto:abhisuryanu9roho@gmail.com" }
   ];
 
-  useEffect(() => {
-    // Initial animation
-    gsap.fromTo(containerRef.current,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-    );
-  }, []);
+  useRevealOnScroll(containerRef, { y: 30 });
   
   return (
     <footer className="py-12 px-6 md:px-12">

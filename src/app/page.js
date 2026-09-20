@@ -10,21 +10,31 @@ import Achievements from "@/components/sections/Achievements";
 import WorkExperience from "@/components/sections/WorkExperience";
 import LatestProjects from "@/components/sections/LatestProjects";
 import Footer from "@/components/sections/Footer";
+import { useRefreshTriggersAfterLoad } from "@/hooks/useRevealOnScroll";
 
+// Dua lapis, dan urutannya penting. Lapis luar selebar layar TANPA scrollbar dan
+// memotong apa pun yang menyembul; lapis dalam yang membatasi isi di 1920. Dengan
+// begitu pita PORTOFOLIO boleh menembus 1920 sampai menyentuh kedua tepi layar,
+// sementara kelebihannya tidak bisa digeser ke samping.
 export default function Page() {
+  // Foto kolase dan gambar proyek dimuat belakangan dan mengubah tinggi halaman.
+  // Tanpa perhitungan ulang, bagian bawah bisa terlewat ambangnya dan tidak pernah muncul.
+  useRefreshTriggersAfterLoad();
+
   return (
-    <div className="min-h-screen">
-      {/* <BgParticles /> */}
-      <Hero />
-      <AboutMe />
-      <PortfolioMarquee />
-      <Skills />
-      <Education />
-      <Achievements />
-      <WorkExperience />
-      <LatestProjects />
-      <Footer />
-      <BottomNavBar />
+    <div className="overflow-x-clip">
+      <div className="min-h-screen mx-auto max-w-[1920px]">
+        <Hero />
+        <AboutMe />
+        <PortfolioMarquee />
+        <Skills />
+        <Education />
+        <Achievements />
+        <WorkExperience />
+        <LatestProjects />
+        <Footer />
+        <BottomNavBar />
+      </div>
     </div>
   );
 }

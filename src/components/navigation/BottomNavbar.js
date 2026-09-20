@@ -4,6 +4,7 @@ import { User, Briefcase, Github, Linkedin, Mail, Sun, Moon } from 'lucide-react
 import { LiquidGlass } from '@liquidglass/react';
 import { gsap } from 'gsap';
 import { useTheme } from '@/context/ThemeContext';
+import { useGulirKe } from '@/components/providers/SmoothScroll';
 
 export default function BottomNavbar() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -11,10 +12,11 @@ export default function BottomNavbar() {
   const indicatorRef = useRef(null);
   const navRef = useRef(null);
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const gulirKe = useGulirKe();
 
   const navItems = [
-    { icon: User, label: 'About', color: '#99F4FF' },
-    { icon: Briefcase, label: 'Projects', color: '#FFC107' },
+    { icon: User, label: 'About', target: 'aboutme', color: '#99F4FF' },
+    { icon: Briefcase, label: 'Projects', target: 'projects', color: '#FFC107' },
     { icon: Github, label: 'GitHub', link: 'https://github.com/abhisn15', color: '#FF69B4' },
     { icon: Linkedin, label: 'LinkedIn', link: 'https://linkedin.com/in/abhisuryanugroho', color: '#26C6DA' },
     { icon: Mail, label: 'Gmail', link: 'mailto:abhisuryanu9roho@gmail.com', color: '#4F91C9' }
@@ -56,9 +58,12 @@ export default function BottomNavbar() {
   const handleItemClick = (index, item) => {
     if (item.link) {
       window.open(item.link, '_blank', 'noopener,noreferrer');
-    } else {
-      setActiveIndex(index);
+      return;
     }
+    setActiveIndex(index);
+    // Dulu hanya baris di atas yang dijalankan: indikatornya bergeser tapi halaman
+    // diam di tempat. Butir About dan Projects sekarang punya tujuan sungguhan.
+    if (item.target) gulirKe(item.target);
   };
 
   const handleMouseEnter = (index) => {
@@ -114,17 +119,25 @@ export default function BottomNavbar() {
   };
 
   return (
-    <div className='fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl z-50'>
-      <LiquidGlass 
+    <div className='fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-lg sm:max-w-2xl z-50'>
+      {/* Efek kaca yang membelokkan apa pun yang lewat di belakangnya saat halaman
+          digulir - itu memang yang diinginkan, bukan cacat. Yang dulu jadi masalah
+          cuma keterbacaan ikonnya, dan itu diselesaikan dari sisi ikon (bayangan di
+          bawah tiap ikon) plus peredam tipis, bukan dengan mematikan efeknya. */}
+      <LiquidGlass
         className={`border-[0.1px] ${isDarkMode ? 'border-white/40' : 'border-black/20'}`}
         saturation={0.2}
         shadowIntensity={0.3}
         borderRadius={150}
-        displacementScale={12}
+        displacementScale={10}
       >
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{ background: isDarkMode ? 'rgba(20,22,28,0.55)' : 'rgba(255,255,255,0.6)' }}
+        />
         <nav 
           ref={navRef}
-          className="flex items-center w-full justify-between px-4 py-3 gap-1 relative"
+          className="flex items-center w-full justify-between px-2 sm:px-4 py-2.5 sm:py-3 gap-0.5 sm:gap-1 relative"
         >
           {/* Animated indicator */}
           <div
@@ -148,7 +161,7 @@ export default function BottomNavbar() {
                   onClick={() => handleItemClick(index, item)}
                   onMouseEnter={() => handleMouseEnter(index)}
                   onMouseLeave={() => handleMouseLeave(index)}
-                  className={`nav-item relative flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300`}
+                  className={`nav-item relative flex flex-col items-center justify-center w-10 h-10 xs:w-11 xs:h-11 sm:w-14 sm:h-14 rounded-2xl transition-all duration-300 shrink-0`}
                 >
                   {/* Glow effect on hover */}
                   {(isActive || isHovered) && (
@@ -166,8 +179,12 @@ export default function BottomNavbar() {
                         size={22} 
                         className="transition-colors duration-300"
                         style={{
-                          color: isActive ? item.color : isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
-                          filter: isActive ? `drop-shadow(0 0 8px ${item.color}80)` : 'none'
+                          color: isActive ? item.color : isDarkMode ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)',
+                          // Bayangan ini yang menjaga ikon tetap terbaca ketika konten
+                          // halaman lewat di belakang kaca dan ikut terbelokkan.
+                          filter: isActive
+                            ? `drop-shadow(0 0 8px ${item.color}80) drop-shadow(0 1px 3px ${isDarkMode ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)'})`
+                            : `drop-shadow(0 1px 3px ${isDarkMode ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)'})`
                         }}
                       />
                     </div>
@@ -204,7 +221,7 @@ export default function BottomNavbar() {
 
           {/* Divider */}
           <div 
-            className={`h-10 w-[1px] mx-1 ${isDarkMode ? 'bg-white/20' : 'bg-black/20'}`}
+            className={`h-8 sm:h-10 w-[1px] mx-0.5 sm:mx-1 shrink-0 ${isDarkMode ? 'bg-white/20' : 'bg-black/20'}`}
           />
 
           {/* Dark Mode Toggle */}
@@ -212,7 +229,7 @@ export default function BottomNavbar() {
             onClick={toggleDarkMode}
             onMouseEnter={handleThemeToggleHover}
             onMouseLeave={handleThemeToggleLeave}
-            className="theme-toggle relative flex items-center justify-center w-14 h-14 rounded-2xl"
+            className="theme-toggle relative flex items-center justify-center w-10 h-10 xs:w-11 xs:h-11 sm:w-14 sm:h-14 rounded-2xl shrink-0"
           >
             {/* Glow effect */}
             {hoveredIndex === 999 && (

@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# GIF Hero lama (5,6 MB + 2,4 MB) sudah diganti WebP beranimasi.
+# awan.gif masih terkunci proses lain saat dihapus; pola ini menjaganya
+# tidak ikut ter-commit kalau berkasnya masih ada di disk.
+public/assets/hero/*.gif

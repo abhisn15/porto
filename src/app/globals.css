@@ -2,19 +2,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap');
 @import "tailwindcss";
 
+/* Lenis mematikan gulir asli lalu menggantinya frame demi frame. Tanpa gaya ini,
+   gulir bawaan peramban tetap jalan berbarengan dan hasilnya saling rebut. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #1D2028;
-  max-width: 1440px;
-  margin: 0 auto;
 }
 
 :root.dark {
-  --background: #0a0a0a;
+  /* Warna kanvas rancangan, bukan hitam pekat. Hitam bikin foto-foto kolase yang
+     latarnya ikut gelap terlihat seperti kotak menempel, sementara di warna ini
+     mereka menyatu. */
+  --background: #1D2028;
   --foreground: #ededed;
 }
 
 @theme inline {
+  /* Ponsel paling sempit (320px): enam tombol navigasi tidak muat pada ukuran normal */
+  --breakpoint-xs: 360px;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -60,6 +79,15 @@ html {
   transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Butiran halus di seluruh halaman - bagian dari tampilan rancangan, dan sekaligus
+   menyamarkan pita warna yang muncul di latar gelap rata. Dibuat dengan feTurbulence
+   supaya tidak perlu berkas gambar; saturate 0 supaya butirannya abu, bukan warna-warni. */
+html.dark {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
 /* Smooth transitions for all elements */
 * {
   transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
@@ -71,4 +99,19 @@ html {
 /* Override for elements that should transition faster */
 .motion-div, .framer-motion {
   transition: none !important;
+}
+
+
+/* Setelan sistem "kurangi gerak" harus benar-benar dipatuhi. Transisi 0.5 detik pada
+   selector `*` di atas bukan cuma gerakan yang tidak diinginkan, ia juga beban render
+   sendiri karena berlaku ke setiap elemen di halaman. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -2,15 +2,39 @@
 import React, { useRef, useEffect } from "react";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
+import { useGulirKe } from "@/components/providers/SmoothScroll";
+
+// Awan dan matahari dulu GIF berukuran 5,6 MB dan 2,4 MB - keduanya dirender jauh
+// lebih besar dari ukuran tampilnya (962px untuk tampil 200px). Sekarang WebP
+// beranimasi seukuran tampil: 7,89 MB jadi 885 KB. VP9 sebenarnya sembilan kali
+// lebih kecil lagi, tapi Safari tidak mendukung alfa di VP9 - awannya akan muncul
+// di atas kotak hitam di semua Mac dan iPhone. `unoptimized` supaya Next tidak
+// mencoba mengolah ulang berkas beranimasi.
+
+// Sementara menunjuk LinkedIn karena belum ada berkas CV di public/. Begitu
+// public/cv.pdf ada, cukup ganti baris ini jadi "/cv.pdf" - tidak ada tempat lain
+// yang perlu disentuh. Jangan menunjuk berkas yang belum ada: tombol utama yang
+// membuka 404 lebih buruk daripada tombol yang membuka profil LinkedIn.
+const ALAMAT_CV = "https://linkedin.com/in/abhisuryanugroho";
 import { gsap } from "gsap";
 
 export default function Hero() {
   const { isDarkMode, colors } = useTheme();
+  const gulirKe = useGulirKe();
   const heroRef = useRef(null);
   const aboutMeTextRef = useRef(null);
 
-  // Animasi untuk hero section dan about me text
+  // Animasi untuk hero section dan about me text.
+  // Hero sengaja tetap beranimasi saat muat, bukan saat digulir - ia memang sudah
+  // terlihat sejak halaman dibuka. Yang ditambahkan cuma penghormatan pada setelan
+  // sistem: kalau pembaca minta gerakan dikurangi, semuanya langsung tampil utuh.
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const isi = heroRef.current?.querySelectorAll('.hero-text, .hero-button, .hero-image');
+      if (isi) gsap.set(isi, { opacity: 1, y: 0, scale: 1, rotation: 0 });
+      gsap.set(heroRef.current, { opacity: 1, y: 0 });
+      return;
+    }
     if (heroRef.current) {
       const tl = gsap.timeline();
 
@@ -84,13 +108,7 @@ export default function Hero() {
     }
   }, []);
 
-  // Fungsi scroll ke section aboutme
-  const handleGoToAboutMe = () => {
-    const aboutMeSection = document.getElementById("aboutme");
-    if (aboutMeSection) {
-      aboutMeSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const handleGoToAboutMe = () => gulirKe("aboutme");
 
   return (
     <div>
@@ -135,8 +153,11 @@ export default function Hero() {
 
           {/* Tombol */}
           <div className="hero-text flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4 mt-6">
-            <button
-              className="hero-button font-sans tracking-widest bg-[#6BBEC8] rounded-bl-3xl rounded-tr-3xl rounded-br-md rounded-tl-md px-6 sm:px-8 py-2 border-b-2 border-r-2 border-[#DDDDDD] text-sm sm:text-base transition-all duration-300 ease-out hover:bg-[#5AAEB9] hover:border-[#CCCCCC]"
+            <a
+              href={ALAMAT_CV}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hero-button font-sans tracking-widest bg-[#6BBEC8] text-[#14161c] rounded-bl-3xl rounded-tr-3xl rounded-br-md rounded-tl-md px-6 sm:px-8 py-2 border-b-2 border-r-2 border-[#DDDDDD] text-sm sm:text-base transition-all duration-300 ease-out hover:bg-[#5AAEB9] hover:border-[#CCCCCC]"
               onMouseEnter={(e) => {
                 gsap.to(e.currentTarget, {
                   scale: 1.05,
@@ -155,9 +176,11 @@ export default function Hero() {
               }}
             >
               CV Review
-            </button>
+            </a>
             <button
-              className="hero-button font-sans tracking-widest bg-[#4F91C9] rounded-bl-3xl rounded-tr-3xl rounded-br-md rounded-tl-md px-6 sm:px-8 py-2 border-b-2 border-r-2 border-[#DDDDDD] text-sm sm:text-base transition-all duration-300 ease-out hover:bg-[#3E80B5] hover:border-[#CCCCCC]"
+              type="button"
+              onClick={() => gulirKe("projects")}
+              className="hero-button font-sans tracking-widest bg-[#4F91C9] text-[#14161c] rounded-bl-3xl rounded-tr-3xl rounded-br-md rounded-tl-md px-6 sm:px-8 py-2 border-b-2 border-r-2 border-[#DDDDDD] text-sm sm:text-base transition-all duration-300 ease-out hover:bg-[#3E80B5] hover:border-[#CCCCCC]"
               onMouseEnter={(e) => {
                 gsap.to(e.currentTarget, {
                   scale: 1.05,
@@ -180,50 +203,59 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Bagian Gambar */}
-        <div className="flex-1 flex justify-center items-center relative">
-          <Image
-            src="/assets/hero/profile.jpg"
-            alt="Profile Hero Image"
-            width={350}
-            height={350}
-            className="hero-image rounded-b-[60px] sm:rounded-b-[80px] object-cover relative sm:bottom-20 z-10"
-          />
-          <Image
-            src="/assets/hero/awan.gif"
-            alt="Awan"
-            width={200}
-            height={200}
-            className="absolute -bottom-6 sm:bottom-4 -left-10 sm:left-10 z-10"
-          />
-          <Image
-            src="/assets/hero/matahari.gif"
-            alt="Matahari"
-            width={150}
-            height={150}
-            className="absolute -bottom-6 sm:-top-10 -left-10 sm:left-90 z-10"
-          />
+        {/* Bagian Gambar. Awan dan matahari ditempelkan ke FOTONYA, bukan ke kolomnya:
+            sebelumnya matahari dipasang `left-90` (360px) dari tepi kolom, jadi letaknya
+            ikut berubah setiap kali kolomnya melebar - di layar lebar ia mendarat tepat di
+            wajah, dan di 1024px ia menyembul 38px keluar layar. */}
+        <div className="flex-1 flex justify-center items-center">
+          <div className="relative sm:-translate-y-16">
+            <Image
+              src="/assets/hero/profile.jpg"
+              alt="Profile Hero Image"
+              width={350}
+              height={350}
+              className="hero-image rounded-b-[60px] sm:rounded-b-[80px] object-cover relative z-10"
+            />
+            <Image
+              src="/assets/hero/awan.webp"
+              unoptimized
+              alt=""
+              aria-hidden="true"
+              width={200}
+              height={200}
+              className="absolute z-20 -left-6 sm:-left-20 -bottom-8 sm:-bottom-10 w-[110px] sm:w-[200px] h-auto"
+            />
+            {/* Matahari sengaja tidak menjulur ke atas foto: kalau menjulur, bagian atas
+                halaman harus diberi ruang kosong hanya demi dia, atau dia kena potong. */}
+            <Image
+              src="/assets/hero/matahari.webp"
+              unoptimized
+              alt=""
+              aria-hidden="true"
+              width={150}
+              height={150}
+              className="absolute z-20 -right-6 top-2 w-[80px] sm:w-[130px] h-auto"
+            />
+          </div>
         </div>
       </div>
-      <div className="font-sans flex justify-center items-center ">
-        <span
+      <div className="font-sans flex justify-center items-center pb-4">
+        {/* Panah ⬐ dan ⬎ memang bagian dari tampilannya. Dibungkus <button>, bukan
+            <span>, supaya bisa dicapai dan ditekan lewat papan ketik tanpa perlu
+            menangani tombol Enter dan spasi sendiri. */}
+        <button
           ref={aboutMeTextRef}
           onClick={handleGoToAboutMe}
+          type="button"
+          className="rounded-full px-4 py-2 font-semibold select-none transition-colors duration-200 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{
-            cursor: "pointer",
-            fontWeight: 600,
             color: isDarkMode ? "#6BBEC8" : "#4F91C9",
-            userSelect: "none",
-            transition: "color 0.2s",
+            outlineColor: isDarkMode ? "#6BBEC8" : "#4F91C9",
+            letterSpacing: "1.5px"
           }}
-          tabIndex={0}
-          onKeyDown={e => {
-            if (e.key === "Enter" || e.key === " ") handleGoToAboutMe();
-          }}
-          aria-label="Go to about me section"
         >
           ⬐ Go to aboutme ⬎
-        </span>
+        </button>
       </div>
     </div>
   );

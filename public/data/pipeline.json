@@ -1,0 +1,77 @@
+{
+  "dibuat": "2026-09-20T18:02:48",
+  "ringkasan": {
+    "produk": 10,
+    "video": 32,
+    "upload": 29
+  },
+  "terakhir_jalan": "2026-09-20T05:19:07",
+  "antrian": [
+    {
+      "slug": "civago-13oz-385ml-mug-kopi-stainless-steel-dengan-liner-keramik-dan-tutup-termos-vakum",
+      "nama": "Rahasia Kopi Tetap Nikmat Seharian di Meja…",
+      "tahap": "selesai terjadwal",
+      "peran": "upload",
+      "persen": 100,
+      "waktu": "2026-09-20T05:19:07",
+      "jadwal": {}
+    },
+    {
+      "slug": "transformers-tf-y12-outdoor-waterproof-bluetooth-speaker",
+      "nama": "Speaker Transformers Anti Air Mungil",
+      "tahap": "gagal render",
+      "peran": "gagal",
+      "persen": -1,
+      "waktu": "2026-09-20T01:46:15",
+      "jadwal": {}
+    },
+    {
+      "slug": "kipas-angin-mini-portable-usb-15000-20000mah-5-speed-led-display",
+      "nama": "Kipas Mini USB, Solusi Angin Sejuk Tanpa…",
+      "tahap": "selesai terjadwal",
+      "peran": "upload",
+      "persen": null,
+      "waktu": "2026-09-19T16:54:34",
+      "jadwal": {
+        "youtube": "2026-09-23T19:00",
+        "facebook": "2026-09-24T19:00"
+      }
+    },
+    {
+      "slug": "kain-lap-microfiber-10-pcs-25-x-25-cm-clean-soft",
+      "nama": "Ngelap Meja Masih Berbekas? Coba Pakai Ini!",
+      "tahap": "selesai terjadwal",
+      "peran": "upload",
+      "persen": null,
+      "waktu": "2026-09-19T01:38:35",
+      "jadwal": {
+        "youtube": "2026-09-22T19:00",
+        "facebook": "2026-09-23T19:00"
+      }
+    },
+    {
+      "slug": "jaket-olahraga-anti-uv-upf-50-wanita-dan-pria-sweater-olahraga-indoor-maupun-qutdoor-jogging-fitnes-gym-jalan-santai-bersepeda-camping",
+      "nama": "Jaket Olahraga Anti Gosong Murah",
+      "tahap": "selesai terjadwal",
+      "peran": "upload",
+      "persen": null,
+      "waktu": "2026-09-19T00:10:02",
+      "jadwal": {
+        "youtube": "2026-09-21T19:00",
+        "facebook": "2026-09-22T19:00"
+      }
+    },
+    {
+      "slug": "setelan-kaos-running-dry-fit-bullbest-baju-olahraga-dan-celana-pendek-lari-pria-tanpa-saku-gym-sport",
+      "nama": "Setelan Olahraga Anti Gerah & Cepat Kering",
+      "tahap": "selesai terjadwal",
+      "peran": "upload",
+      "persen": null,
+      "waktu": "2026-09-18T16:17:16",
+      "jadwal": {
+        "youtube": "2026-09-20T19:00",
+        "facebook": "2026-09-21T19:00"
+      }
+    }
+  ]
+}

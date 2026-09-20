@@ -1,145 +1,102 @@
 'use client';
 import { useTheme } from '@/context/ThemeContext';
-import { gsap } from 'gsap';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
+import { useRevealOnScroll } from '@/hooks/useRevealOnScroll';
+import SectionTitle from '@/components/ui/SectionTitle';
 
 export default function WorkExperience() {
-  const { isDarkMode, colors } = useTheme();
+  const { colors } = useTheme();
   const containerRef = useRef(null);
-  
+
+  // Urutan dan tanggal mengikuti LinkedIn - itu sumber paling mutakhir, dan beberapa
+  // tanggal di rancangan Figma sudah tidak cocok lagi dengan kenyataannya.
+  // `foto` dibiarkan kosong sampai berkasnya ada; entri tanpa foto tetap rapi.
   const experiences = [
     {
-      company: "Perhimpunan Pecinta Alam Putih",
-      period: "Mei 2023 - Sep 2023",
-      position: "Full Stack Mobile and Web Developer & Digital Operations Support",
-      description: "Developed mobile and web applications while supporting digital operations.",
-      image: "/assets/hero/profile.jpg"
+      company: 'TPM Group',
+      period: 'Sep 2025 - Present',
+      position: 'IT Staff, Fullstack Developer',
+      location: 'Jakarta Selatan, Indonesia',
+      description:
+        'Joined as an intern (Sep-Dec 2025) and stayed on as junior IT staff from January 2026. Builds and maintains internal web and mobile tools alongside day-to-day IT service support.',
+      foto: []
     },
     {
-      company: "PT. Densa Indonesia",
-      period: "Mei 2023 - Sep 2023",
-      position: "Internship Fullstack Developer",
-      description: "Fullstack development internship focusing on digitalization projects.",
-      image: "/assets/hero/profile.jpg"
+      company: 'Poyangbi',
+      period: 'Jun 2024 - May 2026',
+      position: 'Administrative Assistant & Documentation (Freelance)',
+      location: 'Bekasi, Indonesia',
+      description:
+        'Supported Qurban, Aqiqah, and Nazar operations for Sohibul Qurban beneficiaries in Singapore, focused on automation and data management. Designed and implemented Google Apps Script tooling for the workflow.',
+      foto: []
     },
     {
-      company: "SG. Charity Indonesia (Payanghi)",
-      period: "Jan 2024 - Jun 2024",
-      position: "Administrator & Social Assistant",
-      description: "Administrative support and social assistance for charity organization.",
-      image: "/assets/hero/profile.jpg"
+      company: 'Perhimpunan Pecinta Hitam Putih (P2HP)',
+      period: 'May 2025 - Sep 2025',
+      position: 'Full Stack Developer & Digital Operations Support (Freelance)',
+      location: 'Jakarta, Indonesia',
+      description:
+        'Led full-cycle mobile app development for a grassroots community initiative - UI/UX, build, and deployment - while running digital operations: product copywriting, marketplace listings on Tokopedia and Shopee, and live-stream setup.',
+      foto: []
+    },
+    {
+      company: 'PT Denso Indonesia',
+      period: 'Oct 2024 - Mar 2025',
+      position: 'Fullstack Developer Internship - PE Dev (Digitalization)',
+      location: 'Bekasi, Indonesia',
+      description:
+        'Worked in the Production Engineering team on web and mobile applications supporting logistics and the digitalization of work processes, including Arduino-based barcode monitoring.',
+      foto: []
     }
   ];
 
-  useEffect(() => {
-    // Initial animation
-    gsap.fromTo(containerRef.current,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
-    );
+  useRevealOnScroll(containerRef);
 
-    // Stagger animation for experience cards
-    const experienceCards = containerRef.current?.querySelectorAll('.experience-card');
-    if (experienceCards) {
-      gsap.fromTo(experienceCards,
-        { scale: 0, opacity: 0 },
-        { 
-          scale: 1, 
-          opacity: 1, 
-          duration: 0.6, 
-          stagger: 0.2,
-          ease: "back.out(1.7)"
-        }
-      );
-    }
-  }, []);
-  
   return (
-    <section className="py-20 px-6 md:px-12">
-      <div 
+    <section id="work" className="py-16 px-6 md:px-12">
+      <div
         ref={containerRef}
-        className="max-w-7xl mx-auto"
+        className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-8 lg:gap-10 items-start"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Side - Title */}
-          <div>
-            <h2 
-              className="text-4xl md:text-5xl font-bold mb-4 font-hero"
-              style={{ color: colors.text }}
-            >
-              Work Experience
-            </h2>
-            <div 
-              className="h-0.5 w-24"
-              style={{ backgroundColor: colors.yellow }}
-            ></div>
-          </div>
+        <SectionTitle baris1="Work" baris2="Experience" />
 
-          {/* Right Side - Work Experiences */}
-          <div className="space-y-6">
-            {experiences.map((exp, index) => (
-              <div 
-                key={index}
-                className="experience-card p-6 rounded-lg border"
-                style={{
-                  backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                  borderColor: isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'
-                }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.currentTarget, {
-                    scale: 1.02,
-                    borderColor: colors.cyan,
-                    duration: 0.3,
-                    ease: "power2.out"
-                  });
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.currentTarget, {
-                    scale: 1,
-                    borderColor: isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
-                    duration: 0.3,
-                    ease: "power2.out"
-                  });
-                }}
-              >
-                <div className="flex gap-4">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                    <img
-                      src={exp.image}
-                      alt={exp.company}
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-300"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h3 
-                      className="text-xl font-bold mb-1"
-                      style={{ color: colors.text }}
-                    >
-                      {exp.company}
-                    </h3>
-                    <p 
-                      className="text-sm mb-2"
-                      style={{ color: colors.cyan }}
-                    >
-                      {exp.period}
-                    </p>
-                    <p 
-                      className="text-base font-medium mb-2"
-                      style={{ color: colors.text }}
-                    >
-                      {exp.position}
-                    </p>
-                    <p 
-                      className="text-sm"
-                      style={{ color: colors.textSecondary }}
-                    >
-                      {exp.description}
-                    </p>
-                  </div>
+        <div className="space-y-10">
+          {experiences.map((e) => (
+            <div key={e.company}>
+              {/* Di rancangan, foto kegiatan berdiri di ATAS tiap entri. Belum ada
+                  berkasnya, jadi barisnya hanya muncul kalau fotonya memang ada. */}
+              {e.foto.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-4">
+                  {e.foto.map((src) => (
+                    <div key={src} className="relative w-[150px] h-[100px] overflow-hidden rounded">
+                      <img
+                        src={src}
+                        alt={`${e.company} workplace`}
+                        className="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-300"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-8">
+                <div className="min-w-0">
+                  <h3 className="m-0 text-base font-bold" style={{ color: colors.text }}>{e.company}</h3>
+                  <p className="m-0 mt-2 text-base leading-relaxed" style={{ color: colors.textSecondary }}>
+                    {e.position}
+                  </p>
+                </div>
+                <div className="sm:text-right sm:flex-none">
+                  <p className="m-0 text-base font-bold" style={{ color: colors.text }}>{e.period}</p>
+                  <p className="m-0 mt-2 text-base" style={{ color: colors.textSecondary }}>{e.location}</p>
                 </div>
               </div>
-            ))}
-          </div>
+
+              <p className="m-0 mt-3 text-base leading-relaxed" style={{ color: colors.textSecondary }}>
+                {e.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

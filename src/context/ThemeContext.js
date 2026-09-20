@@ -14,7 +14,16 @@ const getInitialTheme = () => {
 };
 
 export default function ThemeProvider({ children }) {
-  const [isDarkMode, setIsDarkMode] = useState(getInitialTheme);
+  // Awalnya HARUS sama dengan yang dirender server, yaitu false. Dulu nilai awalnya
+  // dibaca dari localStorage saat render pertama, jadi klien dan server menghasilkan
+  // HTML berbeda - React membuang seluruh hasil render server dan menyusunnya ulang
+  // (error #418). Pilihan aslinya dipasang setelah mount, dan supaya tidak ada kilatan
+  // terang, warna latar sudah disetel lebih dulu oleh skrip kecil di layout.
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    setIsDarkMode(getInitialTheme());
+  }, []);
 
   // Listen for system preference changes only when no stored preference exists.
   useEffect(() => {
@@ -49,7 +58,7 @@ export default function ThemeProvider({ children }) {
     toggleDarkMode,
     colors: {
       // Dynamic colors based on mode
-      background: isDarkMode ? '#0a0a0a' : '#ffffff',
+      background: isDarkMode ? '#1D2028' : '#ffffff',
       text: isDarkMode ? '#ededed' : '#1D2028',
       textSecondary: isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
       // Brand colors (consistent)

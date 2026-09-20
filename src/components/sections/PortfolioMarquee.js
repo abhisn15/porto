@@ -1,79 +1,123 @@
 'use client';
 import React, { useRef, useEffect } from 'react';
-import { useTheme } from '@/context/ThemeContext';
 import { gsap } from 'gsap';
 
+/**
+ * Pita bergulir, disalin dari Figma (node 226:41 "Marque Porto").
+ *
+ * Angka aslinya pada kanvas 1280: frame setinggi 347, pita 1325x121 diputar -2.71deg
+ * sehingga kotak pembatasnya 1329x183.6 dan mulai 138.7 dari atas frame. Teks
+ * "PORTOFOLIO" 64px Baloo Regular diputar -2.62deg dengan jarak antarhuruf 3.2px, dan
+ * pemisahnya BUKAN bullet yang menempel di teks melainkan titik tersendiri.
+ *
+ * Dua hal yang dulu meleset dan sekarang dipatok dari angka rancangan:
+ *
+ * 1. Tebal pita. SVG-nya punya viewBox setinggi 231, tapi dulu dipasang setinggi
+ *    section (347) dengan preserveAspectRatio none -- vertikalnya melar 1.5x, jadi
+ *    pitanya tampak jauh lebih tebal dari hurufnya. Sekarang tingginya dipatok
+ *    sk(230) supaya satu satuan viewBox = satu piksel rancangan.
+ *
+ * 2. Jarak antar kata. Diukur dari gambar rancangannya: kata selebar 397px berulang
+ *    tiap 451px, jadi celahnya 54px -- titik 28px plus dua sela 14px yang TERLIHAT.
+ *    Selanya ditulis 7px karena huruf punya sisi kosong bawaan dan letter-spacing masih
+ *    menambah satu sela sesudah huruf terakhir. Dulu selanya 40px, celahnya 102px.
+ *
+ * 3. Fontnya. Rancangan memakai "Baloo" yang asli, bukan "Baloo 2" yang dimuat situs
+ *    ini -- Baloo lama jauh lebih gemuk, jadi versi lama tampak kurus dan kekecilan.
+ *    Yang paling mendekati: Baloo 2 Bold 63px, yang menghasilkan tinggi huruf 40px dan
+ *    kata selebar 397.5px -- rancangannya 40px dan 397px.
+ *
+ * Satu lagi yang perlu diingat saat membaca angka Figma: untuk node yang diputar,
+ * metadata memberi titik SEBELUM rotasi sementara ukurannya sesudah rotasi. Posisi
+ * pita di bawah ini karena itu diambil dari gambar rancangannya, bukan dari metadata.
+ */
+const SUDUT_PITA = -2.71373;
+const SUDUT_TEKS = -2.62;
+const FRAME_W = 1280;   // lebar kanvas rancangan
+const MAKS = 1920;      // batas lebar halaman - di atas ini ukuran berhenti tumbuh
+
+// Pitanya membentang selebar layar, tapi ukurannya berhenti tumbuh di 1920 - sama dengan
+// batas pembungkus halaman. Angka ini harus sama dengan max-w di page.js: kalau pita
+// berhenti lebih awal (dulu 1440), di layar lebar ia mengecil sendiri sementara bagian
+// About Me terus membesar, dan keduanya jadi tidak sebanding.
+const sk = (v) => {
+  const persen = (v / FRAME_W) * 100;
+  const maks = (v / FRAME_W) * MAKS;
+  const min = (v / FRAME_W) * 380;
+  return `clamp(${min.toFixed(2)}px, ${persen.toFixed(3)}vw, ${maks.toFixed(2)}px)`;
+};
+
 export default function PortfolioMarquee() {
-  const { isDarkMode, colors } = useTheme();
-  const marqueeRef = useRef(null);
   const innerRef = useRef(null);
 
   useEffect(() => {
     let ctx;
     if (innerRef.current) {
-      const marqueeWidth = innerRef.current.scrollWidth / 2; // width of one set
+      const lebarSatuSet = innerRef.current.scrollWidth / 2;
       gsap.set(innerRef.current, { x: 0 });
-
       ctx = gsap.context(() => {
         gsap.to(innerRef.current, {
-          x: -marqueeWidth,
+          x: -lebarSatuSet,
           duration: 40,
-          ease: "linear",
+          ease: 'linear',
           repeat: -1,
-          modifiers: {
-            x: gsap.utils.unitize(x => parseFloat(x) % -marqueeWidth)
-          }
+          modifiers: { x: gsap.utils.unitize((x) => parseFloat(x) % -lebarSatuSet) }
         });
       }, innerRef);
-
-      // Clean up animation on unmount
       return () => {
         if (ctx) ctx.revert();
       };
     }
   }, []);
 
-  return (
-    <section
-      className="h-[210px] overflow-hidden relative"
-      style={{
-        // Remove backgroundColor, use SVG instead
-        transform: 'skewY(-4deg)',
-        WebkitTransform: 'skewY(-4deg)',
-        MozTransform: 'skewY(-4deg)',
-        msTransform: 'skewY(-4deg)',
-        OTransform: 'skewY(-4deg)',
-      }}
-    >
-      {/* SVG Background */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full pointer-events-none select-none"
+  const satuUnit = (kunci) => (
+    <span key={kunci} className="flex items-center flex-none" style={{ gap: sk(7) }}>
+      {/* titik pemisah - di rancangan ini elemen sendiri, bukan bagian dari teks */}
+      <span
+        className="flex-none rounded-full bg-black"
+        style={{ width: sk(28), height: sk(28) }}
+      ></span>
+      <span
+        className="text-black whitespace-nowrap"
         style={{
-          zIndex: 0,
-          top: 0,
-          left: 0,
-          width: '200%',
-          height: '200%',
-          overflow: 'hidden',
+          fontFamily: '"Baloo 2", sans-serif', fontWeight: 700,
+          fontSize: sk(63), letterSpacing: sk(3.2), lineHeight: 1
         }}
       >
+        PORTOFOLIO
+      </span>
+    </span>
+  );
+
+  return (
+    <section
+      aria-hidden="true"
+      className="relative overflow-hidden"
+      style={{
+        // Menembus batas lebar halaman supaya pita menyentuh kedua tepi layar. Lebihnya
+        // dipotong oleh pembungkus ber-overflow-x clip di page.js, jadi tidak bisa digeser.
+        width: '100vw',
+        marginLeft: 'calc(50% - 50vw)',
+        // Di rancangan, frame pita (y 1233) mulai SEBELUM bagian About Me habis (y 1433) -
+        // keduanya tumpang tindih 200px. Section di web ditumpuk berurutan, jadi tanpa ini
+        // pitanya turun 200px dan menyisakan ruang kosong yang tidak ada di rancangan.
+        marginTop: `calc(0px - ${sk(200)})`,
+        height: sk(347)
+      }}
+    >
+      {/* viewBox dipasang persis sebesar kotak filternya, dan tingginya ikut skala
+          rancangan - bukan tinggi section - supaya tebal pita tidak ikut melar. Lebarnya
+          sengaja 106% agar ujung yang terangkat karena rotasi tetap lewat dari tepi. */}
+      <div
+        className="absolute pointer-events-none select-none"
+        style={{ top: sk(52.81), left: '-3%', width: '106%', height: sk(230.001), zIndex: 0 }}
+      >
         <svg
-          width="100%"
-          height="100%"
-          viewBox="0 0 1280 231"
+          viewBox="-34.2 0.8 1375.71 230.001"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style={{
-            display: 'block',
-            width: '80%',
-            height: '70%',
-            objectFit: 'cover',
-            position: 'absolute',
-            top: '-60px', // geser SVG ke atas
-            left: 0,
-          }}
           preserveAspectRatio="none"
+          style={{ display: 'block', width: '100%', height: '100%' }}
         >
           <g filter="url(#filter0_dg_226_42)">
             <rect
@@ -81,8 +125,8 @@ export default function PortfolioMarquee() {
               y="86.7365"
               width="1325.07"
               height="121"
-              transform="rotate(-2.71373 -11 86.7365)"
-              fill={isDarkMode ? "#C9C9C9" : "#C9C9C9"}
+              transform={`rotate(${SUDUT_PITA} -11 86.7365)`}
+              fill="#C9C9C9"
             />
           </g>
           <defs>
@@ -95,8 +139,8 @@ export default function PortfolioMarquee() {
               <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
               <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_226_42"/>
               <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_226_42" result="shape"/>
-              <feTurbulence type="fractalNoise" baseFrequency="0.08196721225976944 0.08196721225976944" numOctaves="3" seed="2999" />
-              <feDisplacementMap in="shape" scale="46.400001525878906" xChannelSelector="R" yChannelSelector="G" result="displacedImage" width="100%" height="100%" />
+              <feTurbulence type="fractalNoise" baseFrequency="0.08196721225976944 0.08196721225976944" numOctaves="3" seed="2999"/>
+              <feDisplacementMap in="shape" scale="46.400001525878906" xChannelSelector="R" yChannelSelector="G" result="displacedImage" width="100%" height="100%"/>
               <feMerge result="effect2_texture_226_42">
                 <feMergeNode in="displacedImage"/>
               </feMerge>
@@ -104,44 +148,16 @@ export default function PortfolioMarquee() {
           </defs>
         </svg>
       </div>
+
+      {/* Teks memakai sudutnya sendiri (-2.62), sedikit berbeda dari pita - memang begitu
+          di rancangan, dan perbedaan tipis itu yang membuatnya terasa ditempel tangan.
+          Duduk di garis tengah pita, yaitu 230.5 dari atas frame. */}
       <div
-        ref={marqueeRef}
-        className="relative w-full overflow-hidden sm:h-[210px] top-10"
-        style={{
-          // counter-skew for children so text stays upright
-          transform: 'skewY(-1.5deg)',
-          WebkitTransform: 'skewY(-1.5deg)',
-          MozTransform: 'skewY(-1.5deg)',
-          msTransform: 'skewY(-1.5deg)',
-          OTransform: 'skewY(-1.5deg)',
-          zIndex: 1,
-        }}
+        className="absolute inset-x-0 overflow-hidden"
+        style={{ top: sk(163.8), transform: `translateY(-50%) rotate(${SUDUT_TEKS}deg)`, zIndex: 1 }}
       >
-        <div
-          ref={innerRef}
-          className="flex whitespace-nowrap"
-          style={{
-            willChange: 'transform',
-          }}
-        >
-          {/* Duplicate text for seamless loop */}
-          {[...Array(2)].map((_, j) =>
-            [...Array(10)].map((_, i) => (
-              <h1
-                key={`${j}-${i}`}
-                className="marquee-text text-6xl md:text-8xl lg:text-9xl font-bold mr-8"
-                style={{
-                  color: isDarkMode ? '#000000' : '#ffffff',
-                  opacity: 0.8,
-                  display: 'inline-block',
-                  userSelect: 'none',
-                  pointerEvents: 'none',
-                }}
-              >
-                ● PORTFOLIO
-              </h1>
-            ))
-          )}
+        <div ref={innerRef} className="flex items-center whitespace-nowrap" style={{ willChange: 'transform', gap: sk(7) }}>
+          {[...Array(2)].map((_, set) => [...Array(6)].map((_, i) => satuUnit(`${set}-${i}`)))}
         </div>
       </div>
     </section>
